@@ -1,5 +1,5 @@
 # bcftools
-Small, distroless-when-possible container for `bcftools`.
+Small compatibility-focused container for `bcftools`.
 
 ## how to use
 ```bash
