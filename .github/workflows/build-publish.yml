@@ -15,6 +15,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Build smoke-test image
+        run: docker build -t picotainers-local/bcftools:smoke .
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          mkdir -p testdata
+          cat > testdata/test.vcf <<'VCF'
+          ##fileformat=VCFv4.2
+          #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+          chr1	10	.	A	G	60	PASS	.
+          VCF
+
+          docker run --rm picotainers-local/bcftools:smoke --version | grep -q 'bcftools 1.23'
+          docker run --rm -v "$PWD/testdata:/data" picotainers-local/bcftools:smoke view -H /data/test.vcf > testdata/out.txt
+          grep -q $'chr1\t10' testdata/out.txt
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
